@@ -22,6 +22,7 @@ import type { DatasourceOverwrite } from './../extractSqliteSources'
 import { commonCodeJS, commonCodeTS } from './common'
 import { Count } from './Count'
 import { Enum } from './Enum'
+import { FieldRefInput } from './FieldRefInput'
 import type { Generatable } from './Generatable'
 import { InputType } from './Input'
 import { Model } from './Model'
@@ -162,6 +163,8 @@ ${buildNFTAnnotations(dataProxy, engineType, platforms, relativeOutdir)}
 
     const modelEnums = this.dmmf.schema.enumTypes.model?.map((type) => new Enum(type, false).toTS())
 
+    const fieldRefs = this.dmmf.schema.fieldRefTypes.prisma.map((type) => new FieldRefInput(type).toTS())
+
     const countTypes: Count[] = this.dmmf.schema.outputObjectTypes.prisma
       .filter((t) => t.name.endsWith('CountOutputType'))
       .map((t) => new Count(t, this.dmmf, this.options.generator))
@@ -225,6 +228,12 @@ ${modelAndTypes.map((model) => model.toTS()).join('\n')}
 // https://github.com/microsoft/TypeScript/issues/3192#issuecomment-261720275
 
 ${prismaEnums.join('\n\n')}
+
+/**
+ * Field references 
+ */
+
+${fieldRefs.join('\n\n')}
 
 /**
  * Deep Input Types

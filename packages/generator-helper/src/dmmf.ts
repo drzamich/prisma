@@ -65,7 +65,7 @@ export namespace DMMF {
   export type FieldKind = 'scalar' | 'object' | 'enum' | 'unsupported'
 
   export type FieldNamespace = 'model' | 'prisma'
-  export type FieldLocation = 'scalar' | 'inputObjectTypes' | 'outputObjectTypes' | 'enumTypes'
+  export type FieldLocation = 'scalar' | 'inputObjectTypes' | 'outputObjectTypes' | 'enumTypes' | 'fieldRefTypes'
 
   export interface Field {
     kind: FieldKind
@@ -115,6 +115,10 @@ export namespace DMMF {
     enumTypes: {
       model?: SchemaEnum[]
       prisma: SchemaEnum[]
+    }
+    fieldRefTypes: {
+      model?: FieldRefType[]
+      prisma: FieldRefType[]
     }
   }
 
@@ -182,6 +186,12 @@ export namespace DMMF {
     }
     fields: SchemaArg[]
     fieldMap?: Record<string, SchemaArg>
+  }
+
+  export interface FieldRefType {
+    name: string
+    allowTypes: SchemaArgInputType[]
+    fields: SchemaArg[]
   }
 
   export interface ModelMapping {

@@ -528,6 +528,14 @@ type PickArray<T, K extends Array<keyof T>> = Prisma__Pick<T, TupleToUnion<K>>
  */
 type ExcludeUnderscoreKeys<T extends string> = T extends \`_$\{string}\` ? never : T
 
+/**
+ * Class, representing the references to model fields
+ */
+class FieldRefInput<Model, FieldType> {
+  private _model: Model;
+  private _type: FieldType;
+}
+
 ${
   !hideFetcher
     ? `class PrismaClientFetcher {

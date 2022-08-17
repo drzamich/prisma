@@ -33,6 +33,9 @@ function stringifyInputType(
   prefixFilter: boolean,
   noEnumerable = false, // used for group by, there we need an Array<> for "by"
 ): string {
+  if (t.location === 'fieldRefTypes') {
+    return `${t.type}<Model>`
+  }
   let type =
     typeof t.type === 'string'
       ? GraphQLScalarToJSTypeTable[t.type] || t.type
@@ -130,6 +133,7 @@ function stringifyInputTypes(
 
 export class InputType implements Generatable {
   constructor(protected readonly type: DMMF.InputType) {}
+
   public toTS(): string {
     const { type } = this
 
@@ -148,6 +152,19 @@ ${indent(
 )}
 }`
     return `
-export type ${type.name} = ${body}`
+export type ${this.getTypeName()} = ${body}`
+  }
+
+  private getTypeName() {
+    if (this.needsGenericModelArg()) {
+      return `${this.type.name}<Model = unknown>`
+    }
+    return this.type.name
+  }
+
+  private needsGenericModelArg() {
+    return this.type.fields.some((field) =>
+      field.inputTypes.some((fieldType) => fieldType.location === 'fieldRefTypes'),
+    )
   }
 }
