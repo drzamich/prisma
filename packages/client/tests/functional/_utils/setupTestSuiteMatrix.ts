@@ -59,12 +59,15 @@ function setupTestSuiteMatrix(
       const clients = [] as any[]
       // we inject modified env vars, and make the client available as globals
       beforeAll(async () => {
-        process.env = { ...setupTestSuiteDbURI(suiteConfig.matrixOptions), ...originalEnv }
+        const datasourceInfo = setupTestSuiteDbURI(suiteConfig.matrixOptions)
+
+        globalThis['datasourceInfo'] = datasourceInfo
 
         globalThis['loaded'] = await setupTestSuiteClient({
           suiteMeta,
           suiteConfig,
           skipDb: options?.skipDb,
+          datasourceInfo,
         })
 
         globalThis['newPrismaClient'] = (...args) => {
@@ -86,7 +89,11 @@ function setupTestSuiteMatrix(
           })
         }
         clients.length = 0
-        !options?.skipDb && (await dropTestSuiteDatabase(suiteMeta, suiteConfig))
+        if (!options?.skipDb) {
+          const datasourceInfo = globalThis['datasourceInfo']
+          process.env[datasourceInfo.envVarName] = datasourceInfo.databaseUrl
+          await dropTestSuiteDatabase(suiteMeta, suiteConfig)
+        }
         process.env = originalEnv
         delete globalThis['loaded']
         delete globalThis['prisma']
